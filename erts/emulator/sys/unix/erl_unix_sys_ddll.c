@@ -122,6 +122,7 @@ int erts_sys_ddll_open(const char *full_name, void **handle, ErtsSysDdllError* e
 #endif
 }
 
+#if defined(HAVE_DLOPEN)
 int erts_sys_ddll_open_noext(char *dlname, void **handle, ErtsSysDdllError* err)
 {
 #if defined(HAVE_DLOPEN)   
@@ -154,6 +155,7 @@ int erts_sys_ddll_open_noext(char *dlname, void **handle, ErtsSysDdllError* err)
     return ERL_DE_ERROR_NO_DDLL_FUNCTIONALITY;
 #endif
 }
+#endif
 
 /* 
  * Find a symbol in the shared object
