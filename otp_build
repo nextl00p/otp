@@ -156,14 +156,7 @@ target_contains ()
 
 determine_version_controller ()
 {
-    version_controller=none
-
-    # The current directory is now $ERL_TOP. Find out whether
-    # this directory is a git repository.
-
-    if { git rev-parse --git-dir; } 2>/dev/null >/dev/null; then
-	version_controller=git
-    fi
+    version_controller=git
 }
 # Execution of the different options
 
