@@ -22,6 +22,20 @@ include $(ERL_TOP)/make/$(TARGET)/otp.mk
 ERTS_SUB_DIRECTORIES = stdlib sasl kernel compiler
 OTHER_SUB_DIRECTORIES = tools test_server common_test runtime_tools \
 			inets xmerl edoc erl_docgen
+ifeq ($(findstring rtems,$(TARGET)),rtems)
+ifdef BUILD_ALL
+  OTHER_SUB_DIRECTORIES += \
+          snmp otp_mibs appmon asn1 \
+          debugger reltool \
+          ic mnesia crypto orber os_mon parsetools syntax_tools \
+          pman public_key ssl toolbar tv observer odbc diameter \
+          cosTransactions cosEvent cosTime cosNotification \
+          cosProperty cosFileTransfer cosEventDomain et megaco webtool \
+	  eunit ssh percept eldap 
+  EXTRA_FILE := $(wildcard EXTRA-APPLICATIONS)
+  EXTRA_APPLICATIONS := $(if $(EXTRA_FILE),$(shell cat $(EXTRA_FILE)))
+endif
+else # unix and win32
 ifdef BUILD_ALL
   OTHER_SUB_DIRECTORIES += \
           snmp otp_mibs appmon erl_interface asn1 jinterface \
@@ -33,6 +47,7 @@ ifdef BUILD_ALL
 	  eunit ssh typer percept eldap dialyzer hipe
   EXTRA_FILE := $(wildcard EXTRA-APPLICATIONS)
   EXTRA_APPLICATIONS := $(if $(EXTRA_FILE),$(shell cat $(EXTRA_FILE)))
+endif
 endif
 
 ifdef BOOTSTRAP
