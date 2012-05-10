@@ -1301,7 +1301,8 @@ static void invoke_read_file(void *data)
 		   &read_size);
     if (d->result_ok) {
 	d->c.read_file.offset += read_size;
-	if (chop) goto chop_done; /* again */
+	if (chop || (d->c.read_file.size > d->c.read_file.offset)) 
+	  goto chop_done; /* again */
     }
  close:
     efile_closefile((int) d->fd);
