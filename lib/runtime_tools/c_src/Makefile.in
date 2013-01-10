@@ -81,8 +81,6 @@ RELSYSDIR = $(RELEASE_PATH)/lib/runtime_tools-$(VSN)
 before_DTrace_OBJS = $(OBJDIR)/dyntrace$(TYPEMARKER).o
 ## NIF_MAKEFILE = $(PRIVDIR)/Makefile
 
-# Higher-level makefiles says that we can only compile on UNIX flavors
-NIF_LIB = $(LIBDIR)/dyntrace$(TYPEMARKER).@DED_EXT@
 
 ifeq ($(HOST_OS),)
 HOST_OS := $(shell $(ERL_TOP)/erts/autoconf/config.guess)
@@ -95,12 +93,16 @@ TRACE_FILE_DRV_OBJS = \
 	$(OBJDIR)/trace_file_drv.o
 
 ifeq ($(findstring win32,$(TARGET)), win32)
+NIF_LIB=
 SOLIBS = $(LIBDIR)/trace_ip_drv.dll $(LIBDIR)/trace_file_drv.dll
 LN=cp
 else
 ifeq ($(findstring rtems,$(TARGET)),rtems)
+NIF_LIB=
 SOLIBS = 
 else
+# Higher-level makefiles says that we can only compile on UNIX flavors
+NIF_LIB = $(LIBDIR)/dyntrace$(TYPEMARKER).@DED_EXT@
 SOLIBS = $(LIBDIR)/trace_ip_drv.so $(LIBDIR)/trace_file_drv.so
 endif
 endif
@@ -145,9 +147,11 @@ $(OBJDIR)/dyntrace$(TYPEMARKER).o: dyntrace.c $(DTRACE_USER_HEADER)
 	$(V_at)$(INSTALL_DIR) $(OBJDIR)
 	$(V_CC) -c -o $@ $(ALL_CFLAGS) $<
 
+ifdef NIF_LIB
 $(NIF_LIB): $(DYNTRACE_OBJS)
 	$(V_at)$(INSTALL_DIR) $(LIBDIR)
 	$(V_LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+endif
 
 $(OBJDIR)/%.o: %.c
 	$(V_CC) -c -o $@ $(ALL_CFLAGS) $<
@@ -181,10 +185,12 @@ docs:
 include $(ERL_TOP)/make/otp_release_targets.mk
 
 release_spec: opt
+ifdef SOLIBS
 	$(INSTALL_DIR) "$(RELSYSDIR)/priv/obj"
 	$(INSTALL_DIR) "$(RELSYSDIR)/priv/lib"
 	$(INSTALL_PROGRAM) $(DYNTRACE_OBJS) "$(RELSYSDIR)/priv/obj"
 	$(INSTALL_PROGRAM) $(NIF_LIB) $(SOLIBS) "$(RELSYSDIR)/priv/lib"
+endif
 
 release_docs_spec:
 
