@@ -25,12 +25,12 @@ OTHER_SUB_DIRECTORIES = tools test_server common_test runtime_tools \
 ifeq ($(findstring rtems,$(TARGET)),rtems)
 ifdef BUILD_ALL
   OTHER_SUB_DIRECTORIES += \
-          snmp otp_mibs appmon asn1 \
+          snmp otp_mibs appmon \
           debugger reltool \
-          ic mnesia crypto orber os_mon parsetools syntax_tools \
+          mnesia crypto orber os_mon parsetools syntax_tools \
           pman public_key ssl toolbar tv observer odbc diameter \
           cosTransactions cosEvent cosTime cosNotification \
-          cosProperty cosFileTransfer cosEventDomain et megaco webtool \
+          cosProperty cosFileTransfer cosEventDomain et webtool \
 	  eunit ssh percept eldap 
   EXTRA_FILE := $(wildcard EXTRA-APPLICATIONS)
   EXTRA_APPLICATIONS := $(if $(EXTRA_FILE),$(shell cat $(EXTRA_FILE)))
