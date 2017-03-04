@@ -98,7 +98,11 @@ ifeq ($(findstring win32,$(TARGET)), win32)
 SOLIBS = $(LIBDIR)/trace_ip_drv.dll $(LIBDIR)/trace_file_drv.dll
 LN=cp
 else
+ifeq ($(findstring rtems,$(TARGET)),rtems)
+SOLIBS = 
+else
 SOLIBS = $(LIBDIR)/trace_ip_drv.so $(LIBDIR)/trace_file_drv.so
+endif
 endif
 # ----------------------------------------------------
 # Targets

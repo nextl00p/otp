@@ -921,7 +921,11 @@ $(TEST_DIRS):
 #
 # Order is important here, don't change it!
 #
+ifeq ($(findstring rtems,$(TARGET)),rtems)
+INST_DEP += install.dirs install.emulator install.libs install.Install 
+else
 INST_DEP += install.dirs install.emulator install.libs install.Install install.bin
+endif
 
 install: $(INST_DEP)
 
