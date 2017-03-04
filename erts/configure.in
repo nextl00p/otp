@@ -2108,7 +2108,7 @@ dnl Checks for features/quirks in the system that affects Erlang.
 dnl ----------------------------------------------------------------------
 
 AC_MSG_CHECKING([for sched_getaffinity/sched_setaffinity])
-AC_TRY_COMPILE([#include <sched.h>],
+AC_TRY_LINK([#include <sched.h>],
 [
 #ifndef CPU_SETSIZE
 #error no CPU_SETSIZE
