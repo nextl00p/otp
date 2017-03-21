@@ -797,6 +797,11 @@ endif
 
 	DRV_OBJS += $(OBJDIR)/ttsl_drv.o
 
+ifeq ($(findstring rtems,$(TARGET)),rtems)
+       DRV_OBJS += $(OBJDIR)/grisp_led_drv.o
+endif
+
+
 ifeq ($(ERTS_ENABLE_KERNEL_POLL),yes)
 OS_OBJS += 	$(OBJDIR)/erl_poll.kp.o \
 		$(OBJDIR)/erl_check_io.kp.o \
