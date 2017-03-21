@@ -36,6 +36,9 @@
 #include <grisp/pin-config.h>
 #include <grisp/led.h>
 #include <grisp/init.h>
+const Pin atsam_pin_config[] = {GRISP_PIN_CONFIG};
+const size_t atsam_pin_config_count = PIO_LISTSIZE(atsam_pin_config);
+const uint32_t atsam_matrix_ccfg_sysio = GRISP_MATRIX_CCFG_SYSIO;
 
 
 #define MNT "/media/mmcsd-0-0/"
@@ -43,16 +46,19 @@
 static void Init(rtems_task_argument arg)
 {
   char *argv[] = { "erl.rtems", /* "-vsgMatpmX", */ "--", "-root", MNT "otp",
-		   "-home", MNT "home", "-boot", "start_sasl", 
+		   "-home", MNT "home", "-boot", "start_sasl" 
 		   /* "-noshell", "-noinput", */
 		   /* "-config", "/mnt/uid", */
 		   /* "-internal_epmd", "epmd_sup", "-sname", "uid" */
-		   "-init_debug", "-loader_debug"
+		   /* "-init_debug", "-loader_debug" */
   };
   int argc = sizeof(argv)/sizeof(*argv);
 
   rtems_status_code sc = RTEMS_SUCCESSFUL;
   int rv = 0;
+  FILE *f;
+  long bufsize;
+  uint8_t * tarbuf;
 
   printf("\nerl_main: starting ... ");
 
@@ -72,8 +78,6 @@ static void Init(rtems_task_argument arg)
     grisp_led_set2(true, false, false);
   }
 
-  printf("making temp dirs\n");
-
   printf("mkdir /tmp\n");
   rv = mkdir("/tmp", 0755);
   assert(rv == 0);
@@ -82,12 +86,16 @@ static void Init(rtems_task_argument arg)
   rv = mkdir("/tmp/log", 0755);
   assert(rv == 0);
 
+  printf("mkdir /home\n");
+  rv = mkdir("/home", 0755);
+  assert(rv == 0);
+
   printf("Setting environment\n");
   setenv("BINDIR", MNT "otp/lib/erlang/bin", 1);
   setenv("ROOTDIR", MNT "otp", 1);
   setenv("PROGNAME", "erl.rtems", 1);
-  setenv("ERL_INETRC", MNT "home/erl_inetrc", 1);
-  setenv("ERL_LIBS", MNT "apps", 1);
+  /* setenv("ERL_INETRC", MNT "home/erl_inetrc", 1); */
+  /* setenv("ERL_LIBS", MNT "apps", 1); */
   setenv("HOME", MNT "home", 1);
 
   printf("starting erlang runtime\n");
@@ -97,16 +105,25 @@ static void Init(rtems_task_argument arg)
   exit(0);
 }
 
-#define CONFIGURE_MICROSECONDS_PER_TICK 10000
+/*
+ * Configure LibBSD.
+ */
+#define RTEMS_BSD_CONFIG_BSP_CONFIG
+#define RTEMS_BSD_CONFIG_INIT
+#define RTEMS_BSD_CONFIG_TERMIOS_KQUEUE_AND_POLL
+
+#include <machine/rtems-bsd-config.h>
+
+#define CONFIGURE_MICROSECONDS_PER_TICK 1000
 
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_STUB_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_ZERO_DRIVER
-
 #define CONFIGURE_APPLICATION_NEEDS_LIBBLOCK
 
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
+#define CONFIGURE_FILESYSTEM_DOSFS
 
 /* increase max file size in IMFS to 64MB */
 #define CONFIGURE_IMFS_MEMFILE_BYTES_PER_BLOCK 256 
@@ -115,11 +132,11 @@ static void Init(rtems_task_argument arg)
 
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 64
 
-#define CONFIGURE_MAXIMUM_TASKS 32
+#define CONFIGURE_MAXIMUM_TASKS 64
 #define CONFIGURE_MAXIMUM_DRIVERS 8
 #define CONFIGURE_MAXIMUM_SEMAPHORES 32
 #define CONFIGURE_MAXIMUM_MESSAGE_QUEUES 4
-#define CONFIGURE_MAXIMUM_TIMERS 4
+#define CONFIGURE_MAXIMUM_TIMERS 8
 #define CONFIGURE_MAXIMUM_PERIODS 4
 
 #define CONFIGURE_MAXIMUM_POSIX_THREADS 4
@@ -135,9 +152,16 @@ static void Init(rtems_task_argument arg)
 
 /* #define CONFIGURE_STACK_CHECKER_ENABLED */
 
-/* #define CONFIGURE_UNLIMITED_OBJECTS */
 #define CONFIGURE_UNLIMITED_ALLOCATION_SIZE 8
 #define CONFIGURE_MAXIMUM_POSIX_KEYS      16
+
+#define CONFIGURE_UNLIMITED_OBJECTS
+#define CONFIGURE_UNIFIED_WORK_AREAS
+#define CONFIGURE_MAXIMUM_USER_EXTENSIONS 1
+
+#define CONFIGURE_BDBUF_BUFFER_MAX_SIZE (16 * 1024)
+#define CONFIGURE_BDBUF_MAX_READ_AHEAD_BLOCKS 4
+#define CONFIGURE_BDBUF_CACHE_MEMORY_SIZE (1 * 1024 * 1024)
 
 #define CONFIGURE_PIPES_ENABLED
 #define CONFIGURE_MAXIMUM_PIPES 16
@@ -145,6 +169,8 @@ static void Init(rtems_task_argument arg)
 #define CONFIGURE_INIT
 
 #define CONFIGURE_MALLOC_DIRTY
+
+#define CONFIGURE_INIT_TASK_PRIORITY 10
 
 #include <rtems/confdefs.h>
 
