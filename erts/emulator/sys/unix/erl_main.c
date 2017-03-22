@@ -29,6 +29,7 @@
 #include <rtems.h>
 #include <rtems/shell.h>
 #include <rtems/console.h>
+#include <rtems/malloc.h>
 #include <bsp.h>
 #include <assert.h>
 #include <rtems/libio.h>
@@ -48,7 +49,10 @@ fatal_extension(uint32_t source, uint32_t is_internal, uint32_t error)
 {
   printk ("fatal extension: source=%ld, is_internal=%ld, error=%ld\n",
 	  source, is_internal, error);
-  rtems_stack_checker_report_usage();
+  if (source == RTEMS_FATAL_SOURCE_EXCEPTION)
+    rtems_exception_frame_print((const rtems_exception_frame *)error)
+      
+  /* rtems_stack_checker_report_usage(); */
   while(1)
     {
     }
@@ -57,8 +61,8 @@ fatal_extension(uint32_t source, uint32_t is_internal, uint32_t error)
 void
 fatal_atexit(void)
 {
-  printk ("Erlang VM exited\n",
-  rtems_stack_checker_report_usage();
+  printk ("Erlang VM exited\n");
+  /* rtems_stack_checker_report_usage(); */
   while(1)
     {
     }
