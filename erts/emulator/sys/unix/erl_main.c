@@ -43,10 +43,32 @@ const uint32_t atsam_matrix_ccfg_sysio = GRISP_MATRIX_CCFG_SYSIO;
 
 #define MNT "/media/mmcsd-0-0/"
 
+void 
+fatal_extension(uint32_t source, uint32_t is_internal, uint32_t error)
+{
+  printk ("fatal extension: source=%ld, is_internal=%ld, error=%ld\n",
+	  source, is_internal, error);
+  rtems_stack_checker_report_usage();
+  while(1)
+    {
+    }
+}
+
+void
+fatal_atexit(void)
+{
+  printk ("Erlang VM exited\n",
+  rtems_stack_checker_report_usage();
+  while(1)
+    {
+    }
+}
+
 static void Init(rtems_task_argument arg)
 {
   char *argv[] = { "erl.rtems", /* "-vsgMatpmX", */ "--", "-root", MNT "otp",
-		   "-home", MNT "home", "-boot", "start_sasl" 
+		   "-home", MNT "home", "-boot", "start_sasl",
+		   "-pa", MNT
 		   /* "-noshell", "-noinput", */
 		   /* "-config", "/mnt/uid", */
 		   /* "-internal_epmd", "epmd_sup", "-sname", "uid" */
@@ -61,6 +83,8 @@ static void Init(rtems_task_argument arg)
   uint8_t * tarbuf;
 
   printf("\nerl_main: starting ... ");
+
+  atexit(fatal_atexit);
 
   grisp_led_set1(false, false, false);
   grisp_led_set2(true, true, true);
@@ -104,6 +128,18 @@ static void Init(rtems_task_argument arg)
   sleep(2);
   exit(0);
 }
+
+#define FATAL_EXTENSION			      \
+  {					      \
+      NULL,				      \
+      NULL,				      \
+      NULL,				      \
+      NULL,				      \
+      NULL,				      \
+      NULL,				      \
+      NULL,				      \
+      fatal_extension			      \
+   }
 
 /*
  * Configure LibBSD.
@@ -157,7 +193,10 @@ static void Init(rtems_task_argument arg)
 
 #define CONFIGURE_UNLIMITED_OBJECTS
 #define CONFIGURE_UNIFIED_WORK_AREAS
-#define CONFIGURE_MAXIMUM_USER_EXTENSIONS 1
+#define CONFIGURE_MAXIMUM_USER_EXTENSIONS 8
+
+#define CONFIGURE_INITIAL_EXTENSIONS      FATAL_EXTENSION
+
 
 #define CONFIGURE_BDBUF_BUFFER_MAX_SIZE (16 * 1024)
 #define CONFIGURE_BDBUF_MAX_READ_AHEAD_BLOCKS 4
