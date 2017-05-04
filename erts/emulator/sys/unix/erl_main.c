@@ -50,7 +50,7 @@ fatal_extension(uint32_t source, uint32_t is_internal, uint32_t error)
   printk ("fatal extension: source=%ld, is_internal=%ld, error=%ld\n",
 	  source, is_internal, error);
   if (source == RTEMS_FATAL_SOURCE_EXCEPTION)
-    rtems_exception_frame_print((const rtems_exception_frame *)error)
+    rtems_exception_frame_print((const rtems_exception_frame *)error);
       
   /* rtems_stack_checker_report_usage(); */
   while(1)

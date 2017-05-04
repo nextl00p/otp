@@ -10,7 +10,7 @@
 #include <sys/ioctl.h>
 
 #include <bsp.h>
-
+#include <bsp/atsam-spi.h>
 #include <bsp/spi.h>
 #include <dev/spi/spi.h>
 
@@ -80,7 +80,7 @@ ErlDrvData grisp_spi_start (ErlDrvPort port, char *command)
   grisp_spi_data.cnt = 1;
 
   /* bus registration */
-  rv = atsam_register_spi_0();
+  rv = spi_bus_register_atsam(ATSAM_SPI_0_BUS_PATH, ID_SPI0, SPI0, NULL, 0);
   assert(rv == 0);
 
   grisp_spi_data.fd = open(ATSAM_SPI_0_BUS_PATH, O_RDWR);
