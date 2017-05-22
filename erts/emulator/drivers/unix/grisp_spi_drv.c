@@ -56,11 +56,9 @@ struct grisp_spi_data {
 };
 
 /* FIXME: consider making this more dynamic, especially if generalized */
-
 static struct grisp_spi_data grisp_spi_data = { NULL, 0, -1 };
 
 /* Make sure to keep this at sync with the -define(res_max_size.. in spi.erl */
-
 #define RES_MAX_SIZE 256
 
 int grisp_spi_init (void)
@@ -118,8 +116,14 @@ test_set_default_msg(struct spi_ioc_transfer *msg)
 void grisp_spi_output (ErlDrvData drv_data, char *buf, ErlDrvSizeT len)
 {
     int rv;
+    uint cs;
     char res[RES_MAX_SIZE];
     struct spi_ioc_transfer msg;
+
+    // Grab first byte as chip select, and shorten buffer by 1
+    cs = buf[0];
+    buf++;
+    len -= 1;
 
     ASSERT ((struct grisp_spi_data *)drv_data == &grisp_spi_data);
     ASSERT (grisp_spi_data.port != NULL);
@@ -128,6 +132,7 @@ void grisp_spi_output (ErlDrvData drv_data, char *buf, ErlDrvSizeT len)
 
     assert(len <= RES_MAX_SIZE);
     test_set_default_msg(&msg);
+    msg.cs = cs;
     msg.tx_buf = buf;
     msg.rx_buf = res;
     msg.len = len;
