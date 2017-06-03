@@ -800,6 +800,7 @@ endif
 ifeq ($(findstring rtems,$(TARGET)),rtems)
        DRV_OBJS += $(OBJDIR)/grisp_led_drv.o
        DRV_OBJS += $(OBJDIR)/grisp_spi_drv.o
+       DRV_OBJS += $(OBJDIR)/grisp_gpio_drv.o
 endif
 
 
