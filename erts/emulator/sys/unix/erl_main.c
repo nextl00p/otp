@@ -30,19 +30,36 @@
 #include <rtems/shell.h>
 #include <rtems/console.h>
 #include <rtems/malloc.h>
+#include <machine/rtems-bsd-commands.h>
 #include <bsp.h>
 #include <assert.h>
 #include <rtems/libio.h>
 
+#include <inih/ini.h>
+
 #include <grisp/pin-config.h>
 #include <grisp/led.h>
 #include <grisp/init.h>
+
+#define MNT "/media/mmcsd-0-0/"
+#define INI_FILE (MNT "grisp.ini")
+
+void parse_args(char *args);
+
 const Pin atsam_pin_config[] = {GRISP_PIN_CONFIG};
 const size_t atsam_pin_config_count = PIO_LISTSIZE(atsam_pin_config);
 const uint32_t atsam_matrix_ccfg_sysio = GRISP_MATRIX_CCFG_SYSIO;
 
+static int start_dhcp = 0;
+static int wlan_enable = 0;
 
-#define MNT "/media/mmcsd-0-0/"
+static char *erl_args = "erl.rtems -- -root /media/mmcsd-0-0/otp"
+    " -home /media/mmcsd-0-0/home -boot start_sasl -pa /media/mmcsd-0-0/";
+
+#define MAX_ARGC 256
+
+static char *argv[MAX_ARGC];
+static int argc;
 
 void 
 fatal_extension(uint32_t source, uint32_t is_internal, uint32_t error)
@@ -68,9 +85,141 @@ fatal_atexit(void)
     }
 }
 
+static int ini_file_handler(void *arg, const char *section, const char *name, 
+			    const char *value)
+{
+  int ok = 0;
+
+  printf ("grisp.ini: "
+	  "section \"%s\", name \"%s\", value \"%s\"\n",
+	  section, name, value);
+  if (strcmp(section, "network") == 0) {
+      if (strcmp(name, "ip_self") == 0) {
+	  if (strcmp(value, "dhcp") == 0) {
+	      start_dhcp = 1;
+	      ok = 1;
+	  }
+      }
+      else if (strcmp(name, "wlan") == 0) {
+	  if (strcmp(value, "enable") == 0) {
+	      wlan_enable = 1;
+	      ok = 1;
+	  }
+	  else if (strcmp(value, "disable") == 0) {
+	      wlan_enable = 0;
+	      ok = 1;
+	  }
+      }
+  }
+  else if (strcmp(section, "erlang") == 0) {
+      if (strcmp(name, "args") == 0) {
+	  printf ("erl args: "
+		  "section \"%s\", name \"%s\", value \"%s\"\n",
+		  section, name, value);
+	  erl_args = strdup(value);
+	  ok = 1;
+      }
+  }
+  else
+    ok = 1;
+
+  if (!ok) {
+      printf ("erl_main: error in configuration file: "
+	      "section \"%s\", name \"%s\", value \"%s\"\n",
+	      section, name, value);
+      ok = 1;
+    }
+
+  return ok;
+}
+
+static void evaluate_ini_file(const char *ini_file)
+{
+    int rv;
+    
+    rv = ini_parse(ini_file, ini_file_handler, NULL);
+    if (rv == -1) {
+	printf("WARNING: Can't find ini file %s -> using defaults\n", ini_file);
+    }
+}
+
+static void
+network_dhcpcd_task(rtems_task_argument arg)
+{
+	int exit_code;
+	char *dhcpcd[] = {
+		"dhcpcd",
+		NULL
+	};
+
+	(void)arg;
+
+	exit_code = rtems_bsd_command_dhcpcd(RTEMS_BSD_ARGC(dhcpcd), dhcpcd);
+	assert(exit_code == EXIT_SUCCESS);
+}
+
+static void
+start_network_dhcpcd(void)
+{
+	rtems_status_code sc;
+	rtems_id id;
+
+	sc = rtems_task_create(
+		rtems_build_name('D', 'H', 'C', 'P'),
+		RTEMS_MAXIMUM_PRIORITY - 1,
+		2 * RTEMS_MINIMUM_STACK_SIZE,
+		RTEMS_DEFAULT_MODES,
+		RTEMS_FLOATING_POINT,
+		&id
+	);
+	assert(sc == RTEMS_SUCCESSFUL);
+
+	sc = rtems_task_start(id, network_dhcpcd_task, 0);
+	assert(sc == RTEMS_SUCCESSFUL);
+}
+
+static void
+create_wlandev(void)
+{
+	int exit_code;
+	char *ifcfg[] = {
+		"ifconfig",
+		"wlan0",
+		"create",
+		"wlandev",
+		"rtwn0",
+		"up",
+		NULL
+	};
+
+	exit_code = rtems_bsd_command_ifconfig(RTEMS_BSD_ARGC(ifcfg), ifcfg);
+	if(exit_code != EXIT_SUCCESS) {
+		printf("ERROR while creating wlan0.");
+	}
+}
+
+void parse_args(char *args)
+{
+    char *p;
+    char *last;
+
+    for (p = strtok_r(args, " \t", &last);
+	 p;
+	 p = strtok_r(NULL, " \t", &last))
+    {
+	if (argc >= MAX_ARGC) {
+	        printf("ERROR: too many erl arguments\n");
+		exit(-1);
+	}
+		
+	argv[argc++] = p;
+    }
+}
+
 static void Init(rtems_task_argument arg)
 {
-  char *argv[] = { "erl.rtems", /* "-vsgMatpmX", */ "--", "-root", MNT "otp",
+#if 0
+    char *argv[] = { "erl.rtems", /* "-vsgMatpmX", */ "--", "-root", MNT "otp",
 		   "-home", MNT "home", "-boot", "start_sasl",
 		   "-pa", MNT
 		   /* "-noshell", "-noinput", */
@@ -78,18 +227,15 @@ static void Init(rtems_task_argument arg)
 		   /* "-internal_epmd", "epmd_sup", "-sname", "uid" */
 		   /* "-init_debug", "-loader_debug" */
   };
-  int argc = sizeof(argv)/sizeof(*argv);
 
+  int argc = sizeof(argv)/sizeof(*argv);
+#endif
   rtems_status_code sc = RTEMS_SUCCESSFUL;
   int rv = 0;
-  FILE *f;
-  long bufsize;
-  uint8_t * tarbuf;
 
-  printf("\nerl_main: starting ... ");
-
+  printf("\nerl_main: starting ...\n");
   atexit(fatal_atexit);
-
+  
   grisp_led_set1(false, false, false);
   grisp_led_set2(true, true, true);
   printf("mounting sd card\n");
@@ -98,6 +244,7 @@ static void Init(rtems_task_argument arg)
   grisp_init_libbsd();
   
   /* Wait for the SD card */
+  grisp_led_set2(true, false, true);
   sc = grisp_init_wait_for_sd();
   if(sc == RTEMS_SUCCESSFUL) {
     printf("sd card mounted\n");
@@ -105,6 +252,21 @@ static void Init(rtems_task_argument arg)
     printf("ERROR: SD could not be mounted after timeout\n");
     grisp_led_set2(true, false, false);
   }
+
+  evaluate_ini_file(INI_FILE);
+  printf("%s\n", erl_args);
+  parse_args(erl_args);
+
+  if(start_dhcp) {
+      grisp_led_set2(false, true, true);
+      start_network_dhcpcd();
+  }
+  if (wlan_enable) {
+      grisp_led_set2(false, false, true);
+      rtems_task_wake_after(RTEMS_MILLISECONDS_TO_TICKS(4000));
+      create_wlandev();
+  }
+  grisp_led_set2(false, true, false);
 
   printf("mkdir /tmp\n");
   rv = mkdir("/tmp", 0755);
