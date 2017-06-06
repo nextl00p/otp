@@ -24,14 +24,32 @@
 
 static Pin pins[] =
   {
-    {PIO_PC12, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT},
-    {PIO_PC13, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT},
-    {PIO_PA21, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT},
-    {PIO_PD30, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT},
-    {PIO_PD0, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT},
-    {PIO_PD1, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT},
-    {PIO_PD2, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT},
-    {PIO_PD3, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT}
+    {PIO_PC12, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT},    /* 0: gpio1 pin1 */
+    {PIO_PC13, PIOC, ID_PIOC, PIO_INPUT, PIO_DEFAULT},    /* 1: gpio1 pin2 */
+    {PIO_PA21, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT},    /* 2: gpio1 pin3 */
+    {PIO_PD30, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT},    /* 3: gpio1 pin4 */
+    {PIO_PD0, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT},     /* 4: gpio2 pin1 */
+    {PIO_PD1, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT},     /* 5: gpio2 pin2 */
+    {PIO_PD2, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT},     /* 6: gpio2 pin3 */
+    {PIO_PD3, PIOD, ID_PIOD, PIO_INPUT, PIO_DEFAULT},     /* 7: gpio2 pin4 */
+    {PIO_PA24, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}, /* 8:  led1 r */
+    {PIO_PA17, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}, /* 9:  led1 g */
+    {PIO_PA23, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}, /* 10: led1 b */
+    {PIO_PA13, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}, /* 11: led2 r */
+    {PIO_PA5 , PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}, /* 12  led2 g */
+    {PIO_PA11, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}, /* 13: led2 b */
+    {PIO_PA6 , PIOA, ID_PIOA, PIO_INPUT, PIO_PULLUP},     /* 14: jumpers */     
+    {PIO_PD9 , PIOD, ID_PIOD, PIO_INPUT, PIO_PULLUP},     /* 15: jumpers */     
+    {PIO_PC17, PIOC, ID_PIOC, PIO_INPUT, PIO_PULLUP},     /* 16: jumpers */     
+    {PIO_PD11, PIOD, ID_PIOD, PIO_INPUT, PIO_PULLUP},     /* 17: jumpers */     
+    {PIO_PC10, PIOC, ID_PIOC, PIO_INPUT, PIO_PULLUP},     /* 18: jumpers */     
+    {PIO_PA9, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT},     /* 19: spi1 pin 9 */
+    {PIO_PA10, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT},    /* 20: spi1 pin10 */
+    {PIO_PD12C_SPI0_NPCS2, PIOD, ID_PIOD,
+     PIO_PERIPH_C, PIO_DEFAULT},                          /* 21: SS1 */ 
+    {PIO_PD27B_SPI0_NPCS3, PIOD, ID_PIOD,
+     PIO_PERIPH_B, PIO_DEFAULT}                           /* 22: SS2 */ 
+
   };
 
 int grisp_gpio_init (void);
