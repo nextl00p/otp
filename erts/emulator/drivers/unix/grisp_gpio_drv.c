@@ -38,11 +38,11 @@ static Pin pins[] =
     {PIO_PA13, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}, /* 11: led2 r */
     {PIO_PA5 , PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}, /* 12  led2 g */
     {PIO_PA11, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_DEFAULT}, /* 13: led2 b */
-    {PIO_PA6 , PIOA, ID_PIOA, PIO_INPUT, PIO_PULLUP},     /* 14: jumpers */     
-    {PIO_PD9 , PIOD, ID_PIOD, PIO_INPUT, PIO_PULLUP},     /* 15: jumpers */     
-    {PIO_PC17, PIOC, ID_PIOC, PIO_INPUT, PIO_PULLUP},     /* 16: jumpers */     
-    {PIO_PD11, PIOD, ID_PIOD, PIO_INPUT, PIO_PULLUP},     /* 17: jumpers */     
-    {PIO_PC10, PIOC, ID_PIOC, PIO_INPUT, PIO_PULLUP},     /* 18: jumpers */     
+    {PIO_PA6 , PIOA, ID_PIOA, PIO_INPUT, PIO_PULLUP},     /* 14: jumper 1 */
+    {PIO_PD9 , PIOD, ID_PIOD, PIO_INPUT, PIO_PULLUP},     /* 15: jumper 2 */
+    {PIO_PC17, PIOC, ID_PIOC, PIO_INPUT, PIO_PULLUP},     /* 16: jumper 3 */
+    {PIO_PD11, PIOD, ID_PIOD, PIO_INPUT, PIO_PULLUP},     /* 17: jumper 4 */
+    {PIO_PC10, PIOC, ID_PIOC, PIO_INPUT, PIO_PULLUP},     /* 18: jumper 5 */ 
     {PIO_PA9, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT},     /* 19: spi1 pin 9 */
     {PIO_PA10, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT},    /* 20: spi1 pin10 */
     {PIO_PD12C_SPI0_NPCS2, PIOD, ID_PIOD,
