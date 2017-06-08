@@ -63,6 +63,11 @@ static struct grisp_spi_data grisp_spi_data = { NULL, 0, -1 };
 
 int grisp_spi_init (void)
 {
+    int rv;
+
+    /* bus registration */
+    rv = spi_bus_register_atsam(ATSAM_SPI_0_BUS_PATH, ID_SPI0, SPI0, NULL, 0);
+    assert(rv == 0);
     return 0;
 }
 
@@ -77,10 +82,6 @@ ErlDrvData grisp_spi_start (ErlDrvPort port, char *command)
     grisp_spi_data.port = port;
     grisp_spi_data.cnt = 1;
 
-    /* bus registration */
-    rv = spi_bus_register_atsam(ATSAM_SPI_0_BUS_PATH, ID_SPI0, SPI0, NULL, 0);
-    assert(rv == 0);
-
     grisp_spi_data.fd = open(ATSAM_SPI_0_BUS_PATH, O_RDWR);
     assert(grisp_spi_data.fd != -1);
 
@@ -93,8 +94,8 @@ ErlDrvData grisp_spi_start (ErlDrvPort port, char *command)
 void grisp_spi_stop (ErlDrvData drv_data)
 {
     ASSERT ((struct grisp_spi_data *)drv_data == &grisp_spi_data);
+    close(grisp_spi_data.fd);
     grisp_spi_data.port = NULL;
-    /* FIXME: close fd */
 }
 
 static void
