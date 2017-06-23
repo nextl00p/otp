@@ -28,9 +28,6 @@ ERTS_APPLICATIONS = stdlib sasl kernel compiler
 ERLANG_APPLICATIONS = tools common_test runtime_tools inets parsetools
 
 # These are only build if -a is given to otp_build or make is used directly
-ifeq ($(findstring rtems,$(TARGET)),rtems)
-ALL_ERLANG_APPLICATIONS = xmerl mnesia syntax_tools eunit
-else
 ALL_ERLANG_APPLICATIONS = xmerl edoc erl_docgen snmp otp_mibs erl_interface \
 		  asn1 jinterface \
 	          wx debugger reltool gs \
@@ -39,7 +36,6 @@ ALL_ERLANG_APPLICATIONS = xmerl edoc erl_docgen snmp otp_mibs erl_interface \
 	          cosTransactions cosEvent cosTime cosNotification \
 	          cosProperty cosFileTransfer cosEventDomain et megaco \
 		  eunit ssh typer percept eldap dialyzer hipe
-endif
 
 ifdef BUILD_ALL
   ERLANG_APPLICATIONS += $(ALL_ERLANG_APPLICATIONS)
