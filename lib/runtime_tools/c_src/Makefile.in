@@ -39,7 +39,11 @@ SHELL = /bin/sh
 LIBS = $(DED_LIBS)
 LDFLAGS += $(DED_LDFLAGS)
 
+ifeq ($(findstring rtems,$(TARGET)),rtems)
+TRACE_LIBNAME =
+else
 TRACE_LIBNAME = dyntrace trace_file_drv trace_ip_drv
+endif
 
 SYSINCLUDE = $(DED_SYS_INCLUDE)
 
