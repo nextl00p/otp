@@ -160,15 +160,15 @@ struct erl_msacc_t_ {
 #ifdef ERTS_ENABLE_MSACC
 
 #ifdef USE_THREADS
-extern erts_tsd_key_t erts_msacc_key;
+extern erts_tsd_key_t ERTS_WRITE_UNLIKELY(erts_msacc_key);
 #else
-extern ErtsMsAcc *erts_msacc;
+extern ErtsMsAcc *ERTS_WRITE_UNLIKELY(erts_msacc);
 #endif
 
 #ifdef ERTS_MSACC_ALWAYS_ON
 #define erts_msacc_enabled 1
 #else
-extern int erts_msacc_enabled;
+extern int ERTS_WRITE_UNLIKELY(erts_msacc_enabled);
 #endif
 
 #ifdef USE_THREADS

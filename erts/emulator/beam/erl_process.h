@@ -106,14 +106,14 @@ struct saved_calls {
 };
 
 extern Export exp_send, exp_receive, exp_timeout;
-extern int erts_eager_check_io;
-extern int erts_sched_compact_load;
-extern int erts_sched_balance_util;
-extern Uint erts_no_schedulers;
-extern Uint erts_no_total_schedulers;
+extern int ERTS_WRITE_UNLIKELY(erts_eager_check_io);
+extern int ERTS_WRITE_UNLIKELY(erts_sched_compact_load);
+extern int ERTS_WRITE_UNLIKELY(erts_sched_balance_util);
+extern Uint ERTS_WRITE_UNLIKELY(erts_no_schedulers);
+extern Uint ERTS_WRITE_UNLIKELY(erts_no_total_schedulers);
 #ifdef ERTS_DIRTY_SCHEDULERS
-extern Uint erts_no_dirty_cpu_schedulers;
-extern Uint erts_no_dirty_io_schedulers;
+extern Uint ERTS_WRITE_UNLIKELY(erts_no_dirty_cpu_schedulers);
+extern Uint ERTS_WRITE_UNLIKELY(erts_no_dirty_io_schedulers);
 #endif
 extern Uint erts_no_run_queues;
 extern int erts_sched_thread_suggested_stack_size;
@@ -1316,7 +1316,7 @@ void erts_check_for_holes(Process* p);
 #define SPO_OFF_HEAP_MSGQ 16
 #define SPO_ON_HEAP_MSGQ 32
 
-extern int erts_default_spo_flags;
+extern int ERTS_WRITE_UNLIKELY(erts_default_spo_flags);
 
 /*
  * The following struct contains options for a process to be spawned.
@@ -1372,10 +1372,10 @@ extern erts_smp_rwmtx_t erts_cpu_bind_rwmtx;
 ** erts_system_monitor must be != NIL, to allow testing on just
 ** the erts_system_monitor_* variables.
 */
-extern Eterm erts_system_monitor;
-extern Uint erts_system_monitor_long_gc;
-extern Uint erts_system_monitor_long_schedule;
-extern Uint erts_system_monitor_large_heap;
+extern Eterm ERTS_WRITE_UNLIKELY(erts_system_monitor);
+extern Uint ERTS_WRITE_UNLIKELY(erts_system_monitor_long_gc);
+extern Uint ERTS_WRITE_UNLIKELY(erts_system_monitor_long_schedule);
+extern Uint ERTS_WRITE_UNLIKELY(erts_system_monitor_large_heap);
 struct erts_system_monitor_flags_t {
 	 unsigned int busy_port : 1;
     unsigned int busy_dist_port : 1;
